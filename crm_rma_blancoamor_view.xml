@@ -1,0 +1,259 @@
+<?xml version="1.0"?>
+<openerp>
+    <data>
+
+        <menuitem id="menu_config_claim_extention" name="Claim extention"
+            groups="base.group_no_one"
+            parent="base.menu_base_config" sequence="55"/>
+
+
+        <record id="view_create_claim_from_invoice" model="ir.ui.view">
+              <field name="name">Claim from invoice</field>
+              <field name="model">view.account.invoice.claims</field>
+              <field name="type">form</field>
+              <field name="arch" type="xml">
+                <form string="Crear desde factura">
+                    <group string="claim">
+                        <field name="invoice_line" domain="[('invoice_id','=',505)]" widget="many2many_checkboxes"/>
+                    </group>
+                    <footer>
+                        <button name="view_account_invoice_claims" string="Create or open"  type="object" class="oe_highlight"  />
+                        or
+                        <button string="Cancel" class="oe_link" special="cancel" />
+                    </footer>
+                </form>
+              </field>
+        </record>
+
+
+
+    <record id="action_create_claim_from_invoice" model="ir.actions.act_window">
+        <field name="name">Claim from invoice</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="src_model">claim.from.invoice</field>
+        <field name="res_model">view.account.invoice.claims</field>
+        <field name="view_type">form</field>
+        <field name="domain">[('id','in',active_ids)]</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+
+    </record>
+
+    <record model="ir.values" id="create_claim_from_invoice">
+        <!-- field name="model_id" ref="res.partner" /-->
+        <field name="name">Claim from invoice</field>
+        <field name="key2">client_action_multi</field>
+        <field name="value" eval="'ir.actions.act_window,' +str(ref('action_create_claim_from_invoice'))" />
+        <field name="key">action</field>
+        <field name="model">view.account.invoice.claims</field>
+    </record>
+
+    <!--record model="ir.values" id="create_claim_from_invoice">
+        <field name="name">Prueba</field>
+        <field name="key2">client_action_multi</field>
+        <field name="value" eval="'ir.actions.act_window,' +str(ref('action_create_claim_from_invoice'))" />
+        <field name="key">action</field>
+        <field name="model">view.account.invoice.claims</field>
+    </record-->
+
+
+ 
+
+
+     <record model ="ir.ui.view" id="view_view_account_invoice_claims_tree">
+        <field name="name">view.account.invoice.claims.tree</field>
+        <field name="model">view.account.invoice.claims</field>
+        <field name="arch" type="xml">
+            
+            <tree string="Invoice Claims" create="false">
+                      <field name="partner_id" />
+                      <field name="number" />
+                      
+                      <field name="invoice_line_text" />
+
+                      <field name="name" />
+                      <field name="crm_claim_name" />
+
+                <button name="newclaim" string="Create or open"  type="object" class="oe_highlight"  />
+            </tree>
+        </field>
+    </record>
+
+
+
+    <record id="view_view_account_invoice_claims_filter" model="ir.ui.view">
+            <field name="name">view.account.invoice.claims.select</field>
+            <field name="model">view.account.invoice.claims</field>
+            <field name="arch" type="xml">
+                <search string="Search Invoice Claims">
+                    <field name="partner_id" string="Partner" />
+                    <field name="number" string="Number" />
+                    <field name="crm_claim_name" string="subject" />
+                    <field name="invoice_line" string="Product" />
+               </search>
+            </field>
+    </record>
+
+      <record id="view_view_account_invoice_claims_act" model="ir.actions.act_window">
+            <field name="name">Invoice claims</field>
+            <field name="res_model">view.account.invoice.claims</field>
+            <field name="view_type">form</field>
+            <field name="view_id" ref="view_view_account_invoice_claims_tree"/>
+            <field name="view_mode">tree</field>
+        </record>
+
+
+
+
+ <!-- Claim Types -->
+
+        <record id="crm_claim_type_tree" model="ir.ui.view">
+            <field name="name">crm.claim.type.tree</field>
+            <field name="model">crm.claim.type</field>
+            <field name="arch" type="xml">
+                <tree string="Claim Stages">
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+
+
+        <record id="crm_claim_type_form" model="ir.ui.view">
+            <field name="name">crm.claim.type.form</field>
+            <field name="model">crm.claim.type</field>
+            <field name="arch" type="xml">
+                <form string="Claim Type">
+                    <group col="4">
+                        <field name="name"/>
+                        <field name="parent_id"/>
+                    </group>
+                </form>
+            </field>
+        </record>
+
+        <record id="crm_claim_type_act" model="ir.actions.act_window">
+            <field name="name">Claim Type</field>
+            <field name="res_model">crm.claim.type</field>
+            <field name="view_type">form</field>
+            <field name="view_id" ref="crm_claim_type_tree"/>
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+                Click to setup a new stage in the processing of the claims. 
+              </p><p>
+                You can create claim stages to categorize the status of every
+                claim entered in the system. The stages define all the steps
+                required for the resolution of a claim.
+              </p>
+            </field>
+        </record>
+
+        <menuitem action="crm_claim_type_act" name="Types of claim"
+            id="menu_crm_claim_type-act" parent="menu_config_claim_extention" groups="base.group_no_one"/>
+
+
+            <menuitem name="Invoice Claims" id="menu_view_account_invoice_claims"
+            parent="base.menu_aftersale" action="view_view_account_invoice_claims_act" sequence="0"/>
+
+        <record id="inherit_crm_claim_stage_form" model="ir.ui.view">
+            <field name="name">crm.claim.stage.inherit</field>
+            <field name="model">crm.claim.stage</field>
+            <field name="type">form</field>
+            <field name="inherit_id" ref="crm_claim.crm_claim_stage_form"/>
+            <field name="arch" type="xml">
+                <field name="name" position="after">
+                            <field name="user_id"/>
+                            <field name="day_to_action_next"/>
+                            <field name="action_next"/>
+                            <field name="days_to_date_deadline"/>
+                </field>
+            </field>
+        </record>
+        <record id="inherit_crm_claim_stage_tree" model="ir.ui.view">
+            <field name="name">crm.claim.stage.inherit</field>
+            <field name="model">crm.claim.stage</field>
+            <field name="type">tree</field>
+            <field name="inherit_id" ref="crm_claim.crm_claim_stage_tree"/>
+            <field name="arch" type="xml">
+                <field name="name" position="after">
+                            <field name="user_id"/>
+                </field>
+            </field>
+        </record>
+        <record id="inherit_crm_claim_form" model="ir.ui.view">
+            <field name="name">crm.claim.inherit</field>
+            <field name="model">crm.claim</field>
+            <field name="type">form</field>
+            <field name="inherit_id" ref="crm_claim.crm_case_claims_form_view"/>
+            <field name="arch" type="xml">
+                <field name="priority" position="after">
+                            <field name="origin"/>
+                            <field name="products_id" widget="many2many_tags"  options="{'no_create': True}" attrs="{'invisible': [('products_id','==',[(6, False, [])])]}"/>
+                            
+
+                            <field name="type_id"/>
+                </field>
+                <field name="priority" position="after">
+                            <field name="has_check_solution"/>
+                </field>
+            </field>
+        </record>
+ 
+
+    
+        <!--
+        Case Stage
+        -->
+        
+        <record model="crm.claim.stage" id="stage_claim1">
+            <field name="name">INICIADO</field>
+            <field name="state">INICIADO</field>
+            <field name="sequence">1</field>
+            <field name="case_default" eval="True"/>
+        </record>
+        <record model="crm.claim.stage" id="stage_claim5">
+            <field name="name">CONFIRMADO</field>
+            <field name="state">CONFIRMADO</field>
+            <field name="sequence">27</field>
+            <field name="case_default" eval="False"/>
+        </record>
+        <record model="crm.claim.stage" id="stage_claim2">
+            <field name="name">VISITA</field>
+            <field name="state">VISITA</field>
+            <field name="sequence">28</field>
+            <field name="case_default" eval="True"/>
+        </record>
+        <record model="crm.claim.stage" id="stage_claim3">
+            <field name="name">RESOLUCION</field>
+            <field name="state">RESOLUCION</field>
+            <field name="sequence">29</field>
+            <field name="case_default" eval="False"/>
+        </record>
+        
+        <record model="crm.claim.stage" id="stage_claim4">
+            <field name="name">SOLUCIONADO</field>
+            <field name="state">SOLUCIONADO</field>
+            <field name="sequence">30</field>
+            <field name="case_default" eval="True"/>
+        </record>
+
+        <record model="crm.claim.stage" id="stage_claim6">
+            <field name="name">INVALIDO</field>
+            <field name="state">INVALIDO</field>
+            <field name="sequence">30</field>
+            <field name="case_default" eval="True"/>
+        </record>
+        <record model="crm.claim.stage" id="stage_claim7">
+            <field name="name">DEFENSA CONSUMIDOR</field>
+            <field name="state">DEFENSA CONSUMIDOR</field>
+            <field name="sequence">30</field>
+            <field name="case_default" eval="True"/>
+        </record>
+        <record model="crm.claim.stage" id="stage_claim8">
+            <field name="name">PROVEEDOR</field>
+            <field name="state">PROVEEDOR</field>
+            <field name="sequence">30</field>
+            <field name="case_default" eval="True"/>
+        </record>
+
+     </data>
+</openerp>
